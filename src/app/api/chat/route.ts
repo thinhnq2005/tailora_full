@@ -26,15 +26,15 @@ export async function POST(req: Request) {
                             : `${Number(minPrice).toLocaleString("vi-VN")}đ ~ ${Number(maxPrice).toLocaleString("vi-VN")}đ`;
                     const stock = p.stock != null ? ` | Tồn kho: ${p.stock} ${p.uom}` : "";
                     return `- ${p.name} | Giá: ${priceStr}/${p.uom}${stock} | Thương hiệu: ${p.brand || "TAILORA"} | Quy cách: ${p.spec || "Tiêu chuẩn"}`;
-                }).join("\n")
-                : "- Cát vàng Tân Châu: 320.000đ/m³ | Tồn kho: 450 m³\n- Đá 1x2 Đồng Nai: 380.000đ/m³ | Tồn kho: 580 m³\n- Xi măng Hà Tiên PCB40: 92.000đ/bao | Tồn kho: 1.200 bao\n- Thép cuộn D6 Hòa Phát (Sắt 6): 16.500đ/kg | Tồn kho: 15.000 kg\n- Thép vằn D10 Hòa Phát (Sắt 10): 125.000đ/cây | Tồn kho: 950 cây\n- Gạch tuynel 4 lỗ Bình Dương: 1.250đ/viên | Tồn kho: 45.000 viên";
+                  }).join("\n")
+                : "- Cát vàng Tân Châu: 320.000đ/m³ | Tồn kho: 450 m³\nĐá 1x2 Đồng Nai: 380.000đ/m³ | Tồn kho: 580 m³\nXi măng Hà Tiên PCB40: 92.000đ/bao | Tồn kho: 1.200 bao\nThép cuộn D6 Hòa Phát (Sắt 6): 16.500đ/kg | Tồn kho: 15.000 kg\nThép vằn D10 Hòa Phát (Sắt 10): 125.000đ/cây | Tồn kho: 950 cây\nGạch tuynel 4 lỗ Bình Dương: 1.250đ/viên | Tồn kho: 45.000 viên";
 
         const ordersContext =
             Array.isArray(orders) && orders.length > 0
                 ? orders.map((o: any) =>
                     `- Đơn #${o.id}: Khách ${o.customer_name} | ${Number(o.total_amount || 0).toLocaleString("vi-VN")}đ | Trạng thái: ${o.status} | Niêm phong: ${o.sealed_weight || "Chưa cân"}`
-                ).join("\n")
-                : "- Đơn #ORD-8821: Nhà thầu Trần Minh Phát | 5.100.000đ | Đang giao hàng (Niêm phong: 7.850 kg, Kẹp chì SEAL-LP-4421)\n- Đơn #ORD-8820: Cty Xây Dựng Nam Cần Thơ | 9.350.000đ | Đã hoàn thành giao hàng";
+                  ).join("\n")
+                : "- Đơn #ORD-8821: Nhà thầu Trần Minh Phát | 5.100.000đ | Đang giao hàng (Niêm phong: 7.850 kg, Kẹp chì SEAL-LP-4421)\nĐơn #ORD-8820: Cty Xây Dựng Nam Cần Thơ | 9.350.000đ | Đã hoàn thành giao hàng";
 
         const debtContext = debtMetrics
             ? `Tổng công nợ: ${Number(debtMetrics.tongCongNo || 0).toLocaleString("vi-VN")}đ. Quá hạn: ${Number(debtMetrics.congNoQuaHan || 0).toLocaleString("vi-VN")}đ.`
@@ -46,7 +46,7 @@ Bạn là Trợ lý AI TAILORA, tư vấn viên của Vật Liệu Xây Dựng T
 Địa chỉ: Bờ Kè Sông Hậu, Ninh Kiều, Cần Thơ.
 
 BẢNG DỮ LIỆU THỰC TẾ CỦA CỬA HÀNG:
-[SẢN PHẨM & GIÁ BAN]
+[SẢN PHẨM & GIÁ BÁN]
 ${productsContext}
 
 [ĐƠN HÀNG]
@@ -84,13 +84,20 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
             return NextResponse.json({ content: "Dạ hệ thống AI đang bảo trì, Anh/Chị cần hỗ trợ vui lòng gọi Hotline 0949734567 ạ." });
         }
 
-        // Gọi Gemini với Model chuẩn gemini-2.5-flash
-        // Sửa từ gemini-2.5-flash thành gemini-1.5-flash hoặc gemini-2.0-flash
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+        // Tự động nhận diện khóa chuẩn AIzaSy hoặc Token dạng AQ...
+        const isStandardKey = API_KEY.startsWith("AIzaSy");
+        const url = isStandardKey 
+            ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+            : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (!isStandardKey) {
+            headers["Authorization"] = `Bearer ${API_KEY}`;
+        }
 
         const response = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers,
             body: JSON.stringify({
                 contents,
                 systemInstruction: { parts: [{ text: systemInstruction }] },

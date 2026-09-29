@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const code = searchParams.get("code");
+        const errorParam = searchParams.get("error");
 
-        if (!code) {
+        // Nếu Google trả về lỗi trên URL query
+        if (errorParam || !code) {
             return new NextResponse(
                 `<html><body><script>
-          window.opener.postMessage({ source: "google-oauth-error", error: "Không tìm thấy mã code xác thực từ Google" }, "*");
+          window.opener.postMessage({ source: "google-oauth-error", error: "Xác thực bị hủy hoặc không tìm thấy mã code từ Google" }, "*");
           window.close();
         </script></body></html>`,
                 { headers: { "Content-Type": "text/html; charset=utf-8" } }
@@ -20,7 +24,7 @@ export async function GET(request: Request) {
         
         // Chuẩn hóa redirectUri động theo sát URL gốc hệ thống đang chạy
         const requestUrl = new URL(request.url);
-        const redirectUri = `${requestUrl.origin}/api/auth/google/callback`;
+        const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || `${requestUrl.origin}/api/auth/google/callback`;
 
         // Gọi sang Google API đổi mã code lấy token
         const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -44,7 +48,7 @@ export async function GET(request: Request) {
             
             return new NextResponse(
                 `<html><body><script>
-          window.opener.postMessage({ source: "google-oauth-error", error: "Lỗi xác thực mã token với Google API (Kiểm tra Log terminal)" }, "*");
+          window.opener.postMessage({ source: "google-oauth-error", error: "Lỗi xác thực mã token với Google API (Kiểm tra Log Vercel)" }, "*");
           window.close();
         </script></body></html>`,
                 { headers: { "Content-Type": "text/html; charset=utf-8" } }
@@ -92,7 +96,8 @@ export async function GET(request: Request) {
             { headers: { "Content-Type": "text/html; charset=utf-8" } }
         );
 
-    } catch (error) {
+    } catch (error: any) {
+        console.error("[OAUTH CALLBACK EXCEPTION]:", error?.message || error);
         return new NextResponse(
             `<html><body><script>
         window.opener.postMessage({ source: "google-oauth-error", error: "Lỗi xử lý luồng Callback mạng nội bộ" }, "*");

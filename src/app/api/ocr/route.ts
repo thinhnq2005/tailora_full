@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { OcrExtractionResult, OcrDocType } from "@/types/ocr.types";
 
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { imageBase64, imageMimeType, docType = 'hoa_don', products } = body;
 
-    const OCR_API_KEY = process.env.OCR_API_KEY || process.env.GEMINI_API_KEY;
+    const OCR_API_KEY = (process.env.OCR_API_KEY || process.env.GEMINI_API_KEY || "").trim();
 
     if (!imageBase64 || !imageMimeType) {
       return NextResponse.json({ error: "Thiếu dữ liệu tệp hình ảnh chứng từ." }, { status: 400 });
@@ -37,27 +39,34 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
     { "name": "Tên vật tư 1", "unit": "ĐVT", "quantity": 10, "price": 100000, "total": 1000000 }
   ]
 }
-`;
+`.trim();
 
     if (!OCR_API_KEY) {
       return NextResponse.json({ error: "Chưa cấu hình GEMINI_API_KEY trong biến môi trường." }, { status: 500 });
     }
 
     try {
-      const apiKey = (process.env.GEMINI_API_KEY || "").trim();
-      // Sửa từ gemini-2.5-flash thành gemini-1.5-flash hoặc gemini-2.0-flash
-      // Sửa từ gemini-3.6-flash thành gemini-1.5-flash hoặc gemini-2.0-flash
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-      console.log(" ĐANG FETCH TỚI URL:", url.replace(apiKey, "***HIDDEN_KEY***"));
+      // Tự động nhận diện loại khóa chuẩn AIzaSy hoặc Token dạng AQ... giống bên Chat API
+      const isStandardKey = OCR_API_KEY.startsWith("AIzaSy");
+      const url = isStandardKey
+        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${OCR_API_KEY}`
+        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (!isStandardKey) {
+        headers["Authorization"] = `Bearer ${OCR_API_KEY}`;
+      }
+
+      console.log(" ĐANG FETCH OCR TỚI URL:", url.replace(OCR_API_KEY, "***HIDDEN_KEY***"));
 
       const response = await fetch(url, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({
             contents: [
               {
                 parts: [
-                  { text: `Hãy nhận dạng và trích xuất chứng từ ${docTypeName} này.` },
+                  { text: `Hãy nhận dạng và trích xuất chứng từ ${docTypeName} này dựa trên danh mục vật tư:\n${productsContext}` },
                   { inlineData: { mimeType: imageMimeType, data: imageBase64 } }
                 ]
               }
@@ -70,7 +79,7 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(" CHI TIẾT LỖI TỪ GOOGLE:", response.status, errorText);
+        console.error(" CHI TIẾT LỖI TỪ GOOGLE OCR:", response.status, errorText);
         return NextResponse.json({ error: `Lỗi Google ${response.status}: ${errorText}` }, { status: 500 });
       }
 
@@ -85,7 +94,6 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
 
       const parsed = JSON.parse(cleanJsonText);
       
-      // Map data từ chuẩn mới về cấu trúc OcrUploadZone đang dùng để tránh sập giao diện
       const mappedResult = {
         docType,
         docTypeName,
@@ -113,5 +121,3 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
-
