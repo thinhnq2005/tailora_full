@@ -8,7 +8,7 @@ export async function GET(request: Request) {
         const code = searchParams.get("code");
         const errorParam = searchParams.get("error");
 
-        // Nếu Google trả về lỗi trên URL query
+        // Nếu Google trả về lỗi trên URL query hoặc không có mã code
         if (errorParam || !code) {
             return new NextResponse(
                 `<html><body><script>
@@ -22,9 +22,13 @@ export async function GET(request: Request) {
         const clientId = process.env.GOOGLE_CLIENT_ID || "952749144152-7ibsjm2f0ke0o1nlvoe74qba9mkm5os2.apps.googleusercontent.com";
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET || "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";
         
-        // Chuẩn hóa redirectUri động theo sát URL gốc hệ thống đang chạy
+        // Chuẩn hóa redirectUri: Ưu tiên biến môi trường, nếu không tự động bắt chuẩn https từ Vercel
         const requestUrl = new URL(request.url);
-        const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || `${requestUrl.origin}/api/auth/google/callback`;
+        const protocol = request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", "");
+        const host = request.headers.get("x-forwarded-host") || requestUrl.host;
+        const computedOrigin = `${protocol}://${host}`;
+
+        const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || `${computedOrigin}/api/auth/google/callback`;
 
         // Gọi sang Google API đổi mã code lấy token
         const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {

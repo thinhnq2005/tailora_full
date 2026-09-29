@@ -46,11 +46,12 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
     }
 
     try {
-      // Tự động nhận diện loại khóa chuẩn AIzaSy hoặc Token dạng AQ... giống bên Chat API
+      const modelName = "gemini-3.8-flash";
       const isStandardKey = OCR_API_KEY.startsWith("AIzaSy");
+      
       const url = isStandardKey
-        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${OCR_API_KEY}`
-        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+        ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${OCR_API_KEY}`
+        : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (!isStandardKey) {
@@ -86,7 +87,6 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
       const data = await response.json();
       const rawJsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
       
-      // Xử lý chuỗi JSON để loại bỏ markdown nếu có
       let cleanJsonText = rawJsonText.trim();
       if (cleanJsonText.startsWith("```json")) {
         cleanJsonText = cleanJsonText.replace(/^```json/, "").replace(/```$/, "").trim();

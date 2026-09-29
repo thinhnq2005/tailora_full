@@ -84,11 +84,13 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
             return NextResponse.json({ content: "Dạ hệ thống AI đang bảo trì, Anh/Chị cần hỗ trợ vui lòng gọi Hotline 0949734567 ạ." });
         }
 
-        // Tự động nhận diện khóa chuẩn AIzaSy hoặc Token dạng AQ...
+        // Cập nhật model mới nhất theo thông báo từ Google
+        const modelName = "gemini-3.8-flash";
         const isStandardKey = API_KEY.startsWith("AIzaSy");
+        
         const url = isStandardKey 
-            ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
-            : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+            ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`
+            : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (!isStandardKey) {
