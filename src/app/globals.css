@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-gold: var(--theme-color);
+  --primary-gold-hover: #F59E0B;
+  --dark: #0F172A;
+  --dark-surface: #1E293B;
+  --text-dark: #111827;
+  --primary-color: var(--theme-color);
+  --background-bg: #f8fafc;
+  --panel-bg: #ffffff;
+  --text-main: #111827;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  --accent-gold: var(--theme-color);
+
+  --theme-color: #1e3a8a;
+  --theme-color-15: color-mix(in srgb, var(--theme-color) 15%, transparent);
+  --theme-color-hover: color-mix(in srgb, var(--theme-color) 85%, black);
+
+  --theme-color-dark: color-mix(in srgb, var(--theme-color) 60%, black);
+  --theme-color-fg: #111827;
+  /* Auto-calculated contrast foreground */
+}
+
+body {
+  background-color: #f8fafc;
+  color: var(--text-dark, #111827);
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: inherit;
+}
+
+/* ─── BUTTON STYLES (THEME GOLD / DARK) ─────────────────── */
+.btn-primary {
+  background-color: var(--primary-gold, var(--theme-color)) !important;
+  color: var(--theme-color-fg, #111827) !important;
+  font-weight: 800 !important;
+  border: 1px solid var(--primary-gold, var(--theme-color)) !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--theme-color-hover, #F59E0B) !important;
+  border-color: var(--theme-color-hover, #F59E0B) !important;
+  color: var(--theme-color-fg, #ffffff) !important;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.btn-secondary {
+  background-color: transparent !important;
+  color: var(--primary-gold, var(--theme-color)) !important;
+  border: 1.5px solid var(--primary-gold, var(--theme-color)) !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--theme-color-15) !important;
+  color: var(--theme-color-hover, #F59E0B) !important;
+}
+
+.glass-panel {
+  background: #ffffff !important;
+  border: 1px solid #d8dee4 !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  margin-bottom: 32px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(149, 157, 165, 0.2) !important;
+}
+
+.glossy-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+.glossy-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border-color: var(--theme-color-15) !important;
+}
+
+input,
+select,
+textarea {
+  background-color: #ffffff;
+  color: var(--text-main);
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-gold, var(--theme-color));
+  box-shadow: 0 0 0 3px var(--theme-color-15);
+}
+
+.badge {
+  background-color: var(--theme-color-15);
+  color: var(--primary-gold, var(--theme-color));
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+
+  .glass-panel,
+  .glossy-card {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+}
