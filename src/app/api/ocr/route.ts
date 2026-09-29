@@ -45,7 +45,9 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
 
     try {
       const apiKey = (process.env.GEMINI_API_KEY || "").trim();
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+      // Sửa từ gemini-2.5-flash thành gemini-1.5-flash hoặc gemini-2.0-flash
+      // Sửa từ gemini-3.6-flash thành gemini-1.5-flash hoặc gemini-2.0-flash
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
       console.log(" ĐANG FETCH TỚI URL:", url.replace(apiKey, "***HIDDEN_KEY***"));
 
       const response = await fetch(url, {
@@ -112,4 +114,4 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
   }
 }
 
-
+

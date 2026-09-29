@@ -18,22 +18,22 @@ export async function POST(req: Request) {
         const productsContext =
             Array.isArray(products) && products.length > 0
                 ? products.map((p: any) => {
-                      const minPrice = p.price_min || p.price || 0;
-                      const maxPrice = p.price_max || 0;
-                      const priceStr =
-                          maxPrice === 0 || minPrice === maxPrice
-                              ? `${Number(minPrice).toLocaleString("vi-VN")}đ`
-                              : `${Number(minPrice).toLocaleString("vi-VN")}đ ~ ${Number(maxPrice).toLocaleString("vi-VN")}đ`;
-                      const stock = p.stock != null ? ` | Tồn kho: ${p.stock} ${p.uom}` : "";
-                      return `- ${p.name} | Giá: ${priceStr}/${p.uom}${stock} | Thương hiệu: ${p.brand || "TAILORA"} | Quy cách: ${p.spec || "Tiêu chuẩn"}`;
-                  }).join("\n")
+                    const minPrice = p.price_min || p.price || 0;
+                    const maxPrice = p.price_max || 0;
+                    const priceStr =
+                        maxPrice === 0 || minPrice === maxPrice
+                            ? `${Number(minPrice).toLocaleString("vi-VN")}đ`
+                            : `${Number(minPrice).toLocaleString("vi-VN")}đ ~ ${Number(maxPrice).toLocaleString("vi-VN")}đ`;
+                    const stock = p.stock != null ? ` | Tồn kho: ${p.stock} ${p.uom}` : "";
+                    return `- ${p.name} | Giá: ${priceStr}/${p.uom}${stock} | Thương hiệu: ${p.brand || "TAILORA"} | Quy cách: ${p.spec || "Tiêu chuẩn"}`;
+                }).join("\n")
                 : "- Cát vàng Tân Châu: 320.000đ/m³ | Tồn kho: 450 m³\n- Đá 1x2 Đồng Nai: 380.000đ/m³ | Tồn kho: 580 m³\n- Xi măng Hà Tiên PCB40: 92.000đ/bao | Tồn kho: 1.200 bao\n- Thép cuộn D6 Hòa Phát (Sắt 6): 16.500đ/kg | Tồn kho: 15.000 kg\n- Thép vằn D10 Hòa Phát (Sắt 10): 125.000đ/cây | Tồn kho: 950 cây\n- Gạch tuynel 4 lỗ Bình Dương: 1.250đ/viên | Tồn kho: 45.000 viên";
 
         const ordersContext =
             Array.isArray(orders) && orders.length > 0
                 ? orders.map((o: any) =>
-                      `- Đơn #${o.id}: Khách ${o.customer_name} | ${Number(o.total_amount || 0).toLocaleString("vi-VN")}đ | Trạng thái: ${o.status} | Niêm phong: ${o.sealed_weight || "Chưa cân"}`
-                  ).join("\n")
+                    `- Đơn #${o.id}: Khách ${o.customer_name} | ${Number(o.total_amount || 0).toLocaleString("vi-VN")}đ | Trạng thái: ${o.status} | Niêm phong: ${o.sealed_weight || "Chưa cân"}`
+                ).join("\n")
                 : "- Đơn #ORD-8821: Nhà thầu Trần Minh Phát | 5.100.000đ | Đang giao hàng (Niêm phong: 7.850 kg, Kẹp chì SEAL-LP-4421)\n- Đơn #ORD-8820: Cty Xây Dựng Nam Cần Thơ | 9.350.000đ | Đã hoàn thành giao hàng";
 
         const debtContext = debtMetrics
@@ -85,7 +85,8 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
         }
 
         // Gọi Gemini với Model chuẩn gemini-2.5-flash
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+        // Sửa từ gemini-2.5-flash thành gemini-1.5-flash hoặc gemini-2.0-flash
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: "POST",
