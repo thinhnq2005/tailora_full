@@ -22,9 +22,17 @@ export async function POST(req: Request) {
 
     const docTypeName = docTypeNames[docType as OcrDocType] || "Hóa đơn";
 
+    // Đã sửa lại cú pháp sạch sẽ, không bị lỗi kí tự thừa
     const productsContext = Array.isArray(products) && products.length > 0
       ? products.map((p: any) => `- ID: ${p.id} | ${p.name} | Giá: ${p.price || 0}/${p.uom}`).join("\n")
-      : "- Cát vàng bê tông Tân Châu: 320.000đ/m³\n- Đá 1x2 xanh Đồng Nai: 380.000đ/m³\n- Xi măng Hà Tiên PCB40: 92.000đ/bao\n- Thép cuộn D6 Hòa Phát: 16.500đ/kg\n- Thép cây D10 Hòa Phát: 125.000đ/cây\n- Gạch tuynel 4 lỗ Bình Dương: 1.250đ/viên";
+      : [
+          "- Cát vàng bê tông Tân Châu: 320.000đ/m³",
+          "- Đá 1x2 xanh Đồng Nai: 380.000đ/m³",
+          "- Xi măng Hà Tiên PCB40: 92.000đ/bao",
+          "- Thép cuộn D6 Hòa Phát: 16.500đ/kg",
+          "- Thép cây D10 Hòa Phát: 125.000đ/cây",
+          "- Gạch tuynel 4 lỗ Bình Dương: 1.250đ/viên"
+        ].join("\n");
 
     const ocrSystemInstruction = `
 Bạn là một máy quét OCR. BẮT BUỘC trích xuất TOÀN BỘ (ALL) 100% các dòng sản phẩm có trong ảnh. Không được tóm tắt, không được tự ý cắt giảm. Nếu ảnh có 5 dòng, phải trả về đủ 5 dòng.
@@ -46,7 +54,8 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
     }
 
     try {
-      const modelName = "gemini-3.8-flash";
+      // Đã cập nhật đúng model chuẩn tránh lỗi 401/404
+      const modelName = "gemini-2.5-flash";
       const isStandardKey = OCR_API_KEY.startsWith("AIzaSy");
       
       const url = isStandardKey

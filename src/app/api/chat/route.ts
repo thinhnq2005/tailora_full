@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// ─── POST /api/chat ──────────────────────────────────────────────────────────
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -14,7 +13,6 @@ export async function POST(req: Request) {
 
         const API_KEY = (process.env.GEMINI_API_KEY || process.env.OCR_API_KEY || "").trim();
 
-        // ── Xây dựng ngữ cảnh sản phẩm ─────────────────────────────────────
         const productsContext =
             Array.isArray(products) && products.length > 0
                 ? products.map((p: any) => {
@@ -40,7 +38,6 @@ export async function POST(req: Request) {
             ? `Tổng công nợ: ${Number(debtMetrics.tongCongNo || 0).toLocaleString("vi-VN")}đ. Quá hạn: ${Number(debtMetrics.congNoQuaHan || 0).toLocaleString("vi-VN")}đ.`
             : "Tổng công nợ B2B: 12,85 tỷ đồng (Quá hạn: 3,25 tỷ đồng | Đã thu lũy kế: 15,4 tỷ đồng).";
 
-        // ── System Instruction ────────────────────────────────────────────────
         const systemInstruction = `
 Bạn là Trợ lý AI TAILORA, tư vấn viên của Vật Liệu Xây Dựng TAILORA (Hotline/Zalo: 0949734567).
 Địa chỉ: Bờ Kè Sông Hậu, Ninh Kiều, Cần Thơ.
@@ -58,11 +55,10 @@ ${debtContext}
 QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
 1. Xưng "em", gọi khách là "Anh/Chị".
 2. Trả lời LINH HOẠT, NGẮN GỌN và TRỰC TIẾP vào câu hỏi.
-3. Khi khách hỏi giá hoặc thông tin của MỘT SẢN PHẨM CỤ THỂ (ví dụ: "sắt 6", "cát", "xi măng"): CHỈ BÁO GIÁ VÀ TỒN KHO CỦA ĐÚNG MÓN ĐÓ. TUYỆT ĐỐI KHÔNG IN LẠI TOÀN BỘ DANH SÁCH SẢN PHẨM.
+3. Khi khách hỏi giá hoặc thông tin của MỘT SẢN PHẨM CỤ THỂ: CHỈ BÁO GIÁ VÀ TỒN KHO CỦA ĐÚNG MÓN ĐÓ. TUYỆT ĐỐI KHÔNG IN LẠI TOÀN BỘ DANH SÁCH SẢN PHẨM.
 4. Hiểu tên gọi dân dã: "Sắt 6" = "Thép cuộn D6 Hòa Phát", "Sắt 10" = "Thép vằn D10".
 `.trim();
 
-        // ── Xây dựng contents cho Gemini ─────────────────────────────────────
         const contents: { role: string; parts: { text: string }[] }[] = [];
 
         if (Array.isArray(history) && history.length > 0) {
@@ -84,8 +80,8 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
             return NextResponse.json({ content: "Dạ hệ thống AI đang bảo trì, Anh/Chị cần hỗ trợ vui lòng gọi Hotline 0949734567 ạ." });
         }
 
-        // Cập nhật model mới nhất theo thông báo từ Google
-        const modelName = "gemini-3.8-flash";
+        // Sử dụng model chuẩn gemini-2.5-flash
+        const modelName = "gemini-2.5-flash";
         const isStandardKey = API_KEY.startsWith("AIzaSy");
         
         const url = isStandardKey 
@@ -109,7 +105,7 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
         if (!response.ok) {
             const errorText = await response.text();
             console.error(" LỖI GOOGLE API:", response.status, errorText);
-            return NextResponse.json({ content: "Dạ hệ thống AI đang bận chút xíu, Anh/Chị chờ em giây lát hỏi lại giúp em nhé!" });
+            return NextResponse.json({ content: `Dạ hệ thống AI đang bận chút xíu (Lỗi ${response.status}), Anh/Chị chờ em giây lát hỏi lại giúp em nhé!` });
         }
 
         const data = await response.json();
