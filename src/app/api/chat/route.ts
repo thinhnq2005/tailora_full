@@ -8,7 +8,9 @@ export async function POST(req: Request) {
         const { message, history, products, orders, debtMetrics } = body;
 
         if (!message || typeof message !== "string" || !message.trim()) {
-            return NextResponse.json({ content: "Dạ em là Trợ lý AI TAILORA. Em có thể hỗ trợ Anh/Chị:\n1. Kiểm tra tồn kho cát đá sắt thép\n2. Tra cứu tiến độ & khối lượng niêm phong đơn hàng\n3. Đối soát công nợ B2B\n4. Tư vấn thông số kỹ thuật vật tư\nAnh/Chị cần em kiểm tra mục nào ạ?" });
+            return NextResponse.json({ 
+                content: "Dạ em là Trợ lý AI TAILORA. Em có thể hỗ trợ Anh/Chị:\n1. Kiểm tra tồn kho cát đá sắt thép\n2. Tra cứu tiến độ & khối lượng niêm phong đơn hàng\n3. Đối soát công nợ B2B\n4. Tư vấn thông số kỹ thuật vật tư\nAnh/Chị cần em kiểm tra mục nào ạ?" 
+            });
         }
 
         const API_KEY = (process.env.GEMINI_API_KEY || process.env.OCR_API_KEY || "").trim();
@@ -80,8 +82,9 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
             return NextResponse.json({ content: "Dạ hệ thống AI đang bảo trì, Anh/Chị cần hỗ trợ vui lòng gọi Hotline 0949734567 ạ." });
         }
 
-        // Sử dụng model chuẩn gemini-2.5-flash
         const modelName = "gemini-2.5-flash";
+        
+        // VÌ KHÓA CỦA ANH LÀ DẠNG AQ... NÊN ÉP BUỘC DÙNG BEARER TOKEN QUA HEADER ĐỂ TRÁNH LỖI 401
         const isStandardKey = API_KEY.startsWith("AIzaSy");
         
         const url = isStandardKey 
@@ -89,6 +92,8 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
             : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
         const headers: Record<string, string> = { "Content-Type": "application/json" };
+        
+        // Nếu không phải key AIzaSy (tức là dạng AQ...) thì bắt buộc thêm Authorization Bearer
         if (!isStandardKey) {
             headers["Authorization"] = `Bearer ${API_KEY}`;
         }
@@ -104,8 +109,8 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(" LỖI GOOGLE API:", response.status, errorText);
-            return NextResponse.json({ content: `Dạ hệ thống AI đang bận chút xíu (Lỗi ${response.status}), Anh/Chị chờ em giây lát hỏi lại giúp em nhé!` });
+            console.error("❌ LỖI GOOGLE API:", response.status, errorText);
+            return NextResponse.json({ content: `Dạ hệ thống AI đang bận chút xíu (Lỗi Google ${response.status}), Anh/Chị chờ em giây lát hỏi lại giúp em nhé!` });
         }
 
         const data = await response.json();
@@ -113,7 +118,7 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
 
         return NextResponse.json({ content: cleanOutput });
     } catch (error: any) {
-        console.error(" [CRITICAL ERROR]:", error.message || error);
+        console.error("❌ [CRITICAL ERROR]:", error?.message || error);
         return NextResponse.json({ content: "Dạ em gặp sự cố kết nối, Anh/Chị nhắn lại giúp em nhé!" });
     }
 }

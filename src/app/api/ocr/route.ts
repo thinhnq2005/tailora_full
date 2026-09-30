@@ -22,7 +22,6 @@ export async function POST(req: Request) {
 
     const docTypeName = docTypeNames[docType as OcrDocType] || "Hóa đơn";
 
-    // Đã sửa lại cú pháp sạch sẽ, không bị lỗi kí tự thừa
     const productsContext = Array.isArray(products) && products.length > 0
       ? products.map((p: any) => `- ID: ${p.id} | ${p.name} | Giá: ${p.price || 0}/${p.uom}`).join("\n")
       : [
@@ -54,10 +53,10 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
     }
 
     try {
-      // Đã cập nhật đúng model chuẩn tránh lỗi 401/404
       const modelName = "gemini-2.5-flash";
       const isStandardKey = OCR_API_KEY.startsWith("AIzaSy");
       
+      // Xử lý chuẩn xác URL và Header theo loại khóa (AIzaSy dùng query param, AQ... dùng Bearer Token)
       const url = isStandardKey
         ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${OCR_API_KEY}`
         : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
@@ -67,7 +66,7 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
         headers["Authorization"] = `Bearer ${OCR_API_KEY}`;
       }
 
-      console.log(" ĐANG FETCH OCR TỚI URL:", url.replace(OCR_API_KEY, "***HIDDEN_KEY***"));
+      console.log("ĐANG FETCH OCR TỚI URL:", url.replace(OCR_API_KEY, "***HIDDEN_KEY***"));
 
       const response = await fetch(url, {
           method: "POST",
@@ -89,7 +88,7 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(" CHI TIẾT LỖI TỪ GOOGLE OCR:", response.status, errorText);
+        console.error("CHI TIẾT LỖI TỪ GOOGLE OCR:", response.status, errorText);
         return NextResponse.json({ error: `Lỗi Google ${response.status}: ${errorText}` }, { status: 500 });
       }
 
