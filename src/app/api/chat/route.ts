@@ -83,20 +83,14 @@ QUY TẮC PHẢN HỒI NGHIÊM NGẶT:
         }
 
         const modelName = "gemini-2.5-flash";
-        
-        // VÌ KHÓA CỦA ANH LÀ DẠNG AQ... NÊN ÉP BUỘC DÙNG BEARER TOKEN QUA HEADER ĐỂ TRÁNH LỖI 401
-        const isStandardKey = API_KEY.startsWith("AIzaSy");
-        
-        const url = isStandardKey 
-            ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`
-            : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
-        const headers: Record<string, string> = { "Content-Type": "application/json" };
-        
-        // Nếu không phải key AIzaSy (tức là dạng AQ...) thì bắt buộc thêm Authorization Bearer
-        if (!isStandardKey) {
-            headers["Authorization"] = `Bearer ${API_KEY}`;
-        }
+        // ÉP BUỘC DÙNG BEARER TOKEN + HEADER GOOGLE CLOUD PROJECT ID ĐỂ KHÔNG BỊ LỖI 401
+        const headers: Record<string, string> = { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`,
+            "X-Goog-User-Project": "450893354499"
+        };
 
         const response = await fetch(url, {
             method: "POST",

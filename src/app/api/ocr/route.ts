@@ -56,14 +56,15 @@ Trả về DUY NHẤT một chuỗi JSON sạch đúng cấu trúc sau để Fro
       const modelName = "gemini-2.5-flash";
       const isStandardKey = OCR_API_KEY.startsWith("AIzaSy");
       
-      // Xử lý chuẩn xác URL và Header theo loại khóa (AIzaSy dùng query param, AQ... dùng Bearer Token)
       const url = isStandardKey
         ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${OCR_API_KEY}`
         : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
+      // CẤU HÌNH HEADER ĐẦY ĐỦ CHO TOKEN AQ... VÀ PROJECT ID 450893354499
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (!isStandardKey) {
         headers["Authorization"] = `Bearer ${OCR_API_KEY}`;
+        headers["X-Goog-User-Project"] = "450893354499";
       }
 
       console.log("ĐANG FETCH OCR TỚI URL:", url.replace(OCR_API_KEY, "***HIDDEN_KEY***"));
