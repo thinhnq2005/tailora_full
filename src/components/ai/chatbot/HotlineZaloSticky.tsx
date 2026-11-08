@@ -16,22 +16,22 @@ export default function HotlineZaloSticky(): React.JSX.Element {
       try {
         const res = await fetch("/api/tenant/config/active");
         if (!res.ok) {
-          setContact({ hotline: "0949734567 - 02923912699", zaloPhone: "0949734567" });
+          setContact({ hotline: "0924358645", zaloPhone: "0924358645" });
           return;
         }
         const data = await res.json();
         setContact({
-          hotline: data.hotline || "0949734567 - 02923912699",
-          zaloPhone: data.zaloPhone || "0949734567"
+          hotline: data.hotline || "0924358645",
+          zaloPhone: data.zaloPhone || "0924358645"
         });
       } catch {
-        setContact({ hotline: "0949734567 - 02923912699", zaloPhone: "0949734567" });
+        setContact({ hotline: "0924358645", zaloPhone: "0924358645" });
       }
     }
     fetchContact();
   }, []);
 
-  const zaloPhoneStr = contact?.zaloPhone || "0949734567";
+  const zaloPhoneStr = contact?.zaloPhone || "0924358645";
 
   return (
     <div style={{ backgroundColor: "#ffffff", borderTop: "2px solid #000000", padding: "8px 12px", display: "flex", gap: "8px", boxSizing: "border-box", position: "relative" }}>
@@ -98,18 +98,11 @@ export default function HotlineZaloSticky(): React.JSX.Element {
       {showPhonePopup && (
         <div style={{ position: "absolute", bottom: "52px", left: "12px", right: "12px", backgroundColor: "#ffffff", border: "2px solid #000000", borderRadius: "8px", boxShadow: "4px 4px 0px #000000", padding: "8px", display: "flex", flexDirection: "column", gap: "6px", zIndex: 210 }}>
           <a 
-            href="tel:0949734567" 
+            href="tel:0924358645" 
             onClick={() => setShowPhonePopup(false)}
             style={{ display: "block", textAlign: "center", padding: "10px", backgroundColor: "#f1f5f9", borderRadius: "4px", textDecoration: "none", color: "#000000", fontSize: "13px", fontWeight: "900", fontFamily: "monospace", border: "1px solid #cbd5e1" }}
           >
-            Số máy 1: 0949.734.567
-          </a>
-          <a 
-            href="tel:02923912699" 
-            onClick={() => setShowPhonePopup(false)}
-            style={{ display: "block", textAlign: "center", padding: "10px", backgroundColor: "#f1f5f9", borderRadius: "4px", textDecoration: "none", color: "#000000", fontSize: "13px", fontWeight: "900", fontFamily: "monospace", border: "1px solid #cbd5e1" }}
-          >
-            Số máy 2: 02923.912.699
+            Hotline: 0924.358.645
           </a>
           <button 
             type="button" 

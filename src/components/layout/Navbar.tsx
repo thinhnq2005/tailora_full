@@ -8,7 +8,6 @@ import { useCart } from '@/app/context/CartContext';
 import { getStoredProducts, VlxdProduct } from '@/lib/vlxdStorage';
 import { checkActiveSessionAction, clearSessionAction } from '@/app/action/authActions';
 
-
 const AuthModalSafe = GoogleAuthModal as React.ComponentType<any>;
 
 interface CategoryTreeData {
@@ -35,7 +34,13 @@ export default function Navbar({ searchTerm, setSearchTerm }: NavbarProps): Reac
   const [authType, setAuthType] = useState<'B2B' | 'B2C'>('B2C');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  
+  // Gán thông tin mặc định Nguyễn Quốc Thịnh theo ngữ cảnh người dùng
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; phone: string } | null>({
+    name: 'Nguyễn Quốc Thịnh',
+    email: 'nguyenquocthinh@gmail.com',
+    phone: '0907123456'
+  });
 
   const themeColor = tenant?.primary_color || 'var(--theme-color)';
 
@@ -48,6 +53,7 @@ export default function Navbar({ searchTerm, setSearchTerm }: NavbarProps): Reac
   const handleUserLogout = async () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('odoo_session_id');
+      localStorage.removeItem('linh_phuong_customer');
     }
     await clearSessionAction();
     setCurrentUser(null);
@@ -61,12 +67,13 @@ export default function Navbar({ searchTerm, setSearchTerm }: NavbarProps): Reac
         const session = await checkActiveSessionAction();
         if (session && session.authenticated && session.user) {
           setCurrentUser({
-            name: session.user.name,
-            email: session.user.email
+            name: session.user.name || 'Nguyễn Quốc Thịnh',
+            email: session.user.email || 'nguyenquocthinh@gmail.com',
+            phone: '0907123456'
           });
         }
       } catch {
-        // Safe fallback
+        // Fallback giữ nguyên state mặc định Nguyễn Quốc Thịnh
       }
     }
     syncSessionProfile();
@@ -125,7 +132,6 @@ export default function Navbar({ searchTerm, setSearchTerm }: NavbarProps): Reac
             </button>
 
             <a href="/" style={{ fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flexShrink: 1, overflow: 'hidden' }}>
-
               <span style={{
                 color: 'var(--theme-color)',
                 lineHeight: '1.1',
@@ -194,9 +200,6 @@ export default function Navbar({ searchTerm, setSearchTerm }: NavbarProps): Reac
                             }}
                           >
                             <span>{cat.name}</span>
-                            <span style={{ fontSize: '10px', color: isRowActive ? '#111827' : '#fef08a' }}>
-                              {cat.items.length > 0 ? '' : ''}
-                            </span>
                           </div>
                         );
                       })}
@@ -453,15 +456,15 @@ export default function Navbar({ searchTerm, setSearchTerm }: NavbarProps): Reac
         `}</style>
       </nav>
 
-      {/* SOCIAL ICONS TRÔI NỔI GÓC DƯỚI BÊN TRÁI */}
+      {/* SOCIAL ICONS TRÔI NỔI GÓC DƯỚI BÊN TRÁI - QUY CHUẨN VỀ LINK FACEBOOK MỚI */}
       <div style={{ position: 'fixed', left: '16px', bottom: '80px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 110 }}>
-        <a href={"https://www.facebook.com/share/1DVf7316r1/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', borderRadius: '50%', transition: 'transform 0.2s' }}>
+        <a href="https://www.facebook.com/profile.php?id=61594361098027" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', borderRadius: '50%', transition: 'transform 0.2s' }}>
           <img src="/yt_icon.png" alt="YouTube" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </a>
-        <a href={"https://www.facebook.com/share/1DVf7316r1/?mibextid=wwXIfr"} target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', borderRadius: '50%', transition: 'transform 0.2s' }}>
+        <a href="https://www.facebook.com/profile.php?id=61594361098027" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', borderRadius: '50%', transition: 'transform 0.2s' }}>
           <img src="/fb_icon.png" alt="Facebook" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </a>
-        <a href={tenant?.zalo_oa_url || "https://zalo.me/0949734567"} target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', borderRadius: '50%', transition: 'transform 0.2s' }}>
+        <a href="https://www.facebook.com/profile.php?id=61594361098027" target="_blank" rel="noopener noreferrer" style={{ width: '40px', height: '40px', display: 'block', boxShadow: '0 8px 20px rgba(0,0,0,0.2)', borderRadius: '50%', transition: 'transform 0.2s' }}>
           <img src="/zalo_icon.png" alt="Zalo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </a>
       </div>

@@ -11,7 +11,10 @@ interface GoogleAuthModalProps {
 
 export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthModalProps): React.JSX.Element | null {
   const { tenant } = useTenant() as { tenant: any };
-  const [googleEmail, setGoogleEmail] = useState("");
+  
+  // Gán mặc định theo yêu cầu: Nguyễn Quốc Thịnh & SĐT 0924358645
+  const [googleEmail, setGoogleEmail] = useState("nguyenquocthinh@gmail.com");
+  const [userPhone, setUserPhone] = useState("0924358645");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -60,7 +63,6 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
             }
           } catch {}
         }
-        setGoogleEmail("");
       }
     }
   }, [isOpen, isRegisterMode]);
@@ -136,6 +138,8 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           login: googleEmail.trim(), 
+          name: "Nguyễn Quốc Thịnh",
+          phone: userPhone,
           password: password, 
           type: type 
         }),
@@ -143,14 +147,21 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        setErrorMessage(data.error || "Xác thực tài khoản bến bãi thất bại");
+        setErrorMessage(data.error || "Xác thực tài khoản thất bại");
         setAuthState("error");
         return;
       }
 
       const userData = await response.json();
-      if (typeof window !== "undefined" && userData.session_id) {
-        localStorage.setItem("odoo_session_id", userData.session_id);
+      if (typeof window !== "undefined") {
+        if (userData.session_id) {
+          localStorage.setItem("odoo_session_id", userData.session_id);
+        }
+        localStorage.setItem("linh_phuong_customer", JSON.stringify({
+          name: "Nguyễn Quốc Thịnh",
+          email: googleEmail,
+          phone: userPhone
+        }));
       }
 
       setAuthState("success");
@@ -159,7 +170,7 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
         window.location.reload();
       }, 1000);
     } catch {
-      setErrorMessage("Lỗi kết nối cổng hệ thống bến bãi");
+      setErrorMessage("Lỗi kết nối cổng hệ thống");
       setAuthState("error");
     }
   };
@@ -175,12 +186,12 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
             {isRegisterMode ? "ĐĂNG KÝ HỆ THỐNG" : "ĐĂNG NHẬP HỆ THỐNG"}
           </h2>
           <p style={{ fontSize: "13px", color: "#64748b", margin: 0, fontWeight: "600" }}>
-            Cổng quyền hạn: {type === "B2B" ? "Nhà thầu Sỉ" : "Khách mua lẻ B2C"}
+            Cổng quyền hạn: {type === "B2B" ? "Nhà thầu Sỉ" : "Khách mua lẻ B2C"} - Nguyễn Quốc Thịnh
           </p>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <label style={{ fontSize: "11px", fontWeight: "800", color: "#475569" }}>XÁC THỰC TÀI KHOẢN GOOGLE</label>
+          <label style={{ fontSize: "11px", fontWeight: "800", color: "#475569" }}>XÁC THỰC TÀI KHOẢN GOOGLE & SĐT</label>
           <button
             type="button"
             onClick={handleTriggerGooglePopup}
@@ -191,8 +202,20 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.44 0-6.228-2.788-6.228-6.228 0-3.44 2.788-6.228 6.228-6.228 1.54 0 2.94.557 4.03 1.493l3.215-3.214C19.232 1.946 15.96 1 12.24 1 5.48 1 0 6.48 0 13.24s5.48 12.24 12.24 12.24c6.94 0 12.24-4.873 12.24-12.24 0-.83-.075-1.636-.214-2.413H12.24z"/>
             </svg>
-            {googleEmail ? `Gmail: ${googleEmail}` : "Bấm chọn tài khoản Gmail..."}
+            {googleEmail ? `Nguyễn Quốc Thịnh (${googleEmail})` : "Bấm chọn tài khoản Gmail..."}
           </button>
+        </div>
+
+        {/* CẬP NHẬT THÊM Ô SỐ ĐIỆN THOẠI NẾU CẦN CHỈNH SỬA TRỰC TIẾP */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <label style={{ fontSize: "11px", fontWeight: "800", color: "#475569" }}>SỐ ĐIỆN THOẠI LIÊN HỆ</label>
+          <input 
+            type="text" 
+            value={userPhone}
+            onChange={(e) => setUserPhone(e.target.value)}
+            placeholder="Nhập số điện thoại..."
+            style={{ width: "100%", height: "40px", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0 14px", fontSize: "13px", color: "#000000", backgroundColor: "#f8fafc", boxSizing: "border-box", outline: "none", fontWeight: "700" }}
+          />
         </div>
 
         <form onSubmit={handleSystemAuth} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
@@ -249,7 +272,7 @@ export default function GoogleAuthModal({ isOpen, onClose, type }: GoogleAuthMod
           onClick={onClose}
           style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", color: "#64748b", fontSize: "16px", cursor: "pointer", padding: "4px", fontWeight: "bold" }}
         >
-          
+          ✕
         </button>
 
       </div>
